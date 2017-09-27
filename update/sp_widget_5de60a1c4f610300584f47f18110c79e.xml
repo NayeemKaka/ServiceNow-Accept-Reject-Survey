@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <client_script><![CDATA[function($scope, spUtil, snRecordWatcher, $uibModal) {
+    
+    $scope.contentColClass = "col-sm-12";
+    //$scope.rejectOptions = ["Issue Not Resolved","I am tired of Testing","Not applicable"]
+    $scope.rejectOptions = JSON.parse('[' + $scope.options.rejectreasons + ']');
+    $scope.getSelectedValue = "";
+    $scope.recordsysid = "";
+    $scope.data.op = "";
+    $scope.data.ss = "";
+    //$scope.data.cmnt = "";
+
+    //snRecordWatcher.initList("sc_req_item","state=8^request.u_task_for=" + window.NOW.user_id);
+    snRecordWatcher.initList("sc_req_item", "state=8^request.u_task_for=" + window.NOW.user_id);
+
+    function get() {
+        spUtil.update($scope);
+        spUtil.refresh($scope);
+    }
+
+    $scope.$on('record.updated', function(name, data) {
+        get();
+    })
+
+    $scope.approve = function(id) {
+        $scope.data.op = "3";
+        $scope.data.target = id;
+        get();
+
+        window.location.assign("/sp?id=prologis_take_survey");
+    }
+
+    $scope.reject = function(id, value) {
+        $scope.data.target = id;
+        //$scope.data.op = "2";
+        $scope.data.ss = $scope.getSelectedValue;
+        //console.log("RT0731 " + value);
+        $scope.data.rejectCommentValue = value;
+        // console.log("RT0731 " + $scope.data.rejectCommentValue);
+        $scope.data.substatus = "Rejected";
+
+        $scope.server.update().then(function() {
+            $scope.data.op = null;
+            $scope.data.ss = null;
+            $scope.data.target = null;
+            $scope.data.substatus = null;
+            $scope.data.rejectCommentValue = null;
+            $scope.closeModal();
+            get();
+        })
+
+    }
+
+    $scope.rejectSubmit = function(svalue) {
+        $scope.getSelectedValue = svalue;
+
+    }
+
+    $scope.getSysID = function(rnum, rsys_id) {
+        $scope.recordsysid = rsys_id;
+        $scope.recordnum = rnum;
+
+        $scope.modalInstance = $uibModal.open({
+            templateUrl: "rejectModal",
+            scope: $scope
+        });
+
+    }
+
+    $scope.closeModal = function() {
+        this.modalInstance.dismiss();
+        $scope.getSelectedValue = "";
+    }
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>div {&#13;
+    color: balck;&#13;
+}&#13;
+&#13;
+.comment-text{&#13;
+  position:relative !important;&#13;
+  left:10px;&#13;
+}&#13;
+&#13;
+/*&#13;
+.btn {&#13;
+ font-size: 25px;&#13;
+}&#13;
+*/&#13;
+&#13;
+.btn-info {&#13;
+background-color: #2A9BC6;&#13;
+ &#13;
+}&#13;
+&#13;
+.btn-info:hover {&#13;
+   background-color: #278BB2;&#13;
+}&#13;
+&#13;
+&#13;
+a {&#13;
+ color: black;&#13;
+ padding-bottom: 2px;&#13;
+}&#13;
+&#13;
+a:hover {&#13;
+ color: #587272;&#13;
+}&#13;
+&#13;
+.ss {&#13;
+  font-size: 20px;&#13;
+  &#13;
+}&#13;
+&#13;
+.col-xs-6 {&#13;
+   padding: -0px 60px;&#13;
+    //font-size: 10px;&#13;
+    border-radius: 10px;&#13;
+	  width:20%;&#13;
+    margin: auto;&#13;
+  	&#13;
+    &#13;
+}&#13;
+&#13;
+p {&#13;
+  display:block;&#13;
+  //padding: 0px 0px;&#13;
+  max-width: 300px;&#13;
+  overflow: hidden;&#13;
+  white-space: nowrap;&#13;
+  text-overflow: ellipsis;&#13;
+  font-size: 15px;&#13;
+}&#13;
+&#13;
+resnotes{&#13;
+ {&#13;
+		max-width: 95px;&#13;
+		max-height: 20px;&#13;
+		overflow: hidden;&#13;
+		display: inline-block;&#13;
+		text-overflow: ellipsis;&#13;
+		font-size: 12pt;&#13;
+		//text-align: right;&#13;
+		white-space: nowrap;&#13;
+    color: black;&#13;
+    border: 1px solid #000000 !important;&#13;
+}&#13;
+&#13;
+&#13;
+hr {&#13;
+       border-top: 1px dashed #000000 !important;&#13;
+       margin-bottom:2px !important; &#13;
+       margin-top:8px !important;&#13;
+  		 width: 100%;&#13;
+  		&#13;
+   }&#13;
+&#13;
+  &#13;
+span.ss {&#13;
+ {&#13;
+		max-width: 95px;&#13;
+		max-height: 20px;&#13;
+		overflow: hidden;&#13;
+		display: inline-block;&#13;
+		text-overflow: ellipsis;&#13;
+		font-size: 12pt;&#13;
+		//text-align: right;&#13;
+		white-space: nowrap;&#13;
+    color: black;&#13;
+}&#13;
+&#13;
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Widget for showing accept/reject option for Requested Items</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>accept-reject-ritm</id>
+        <internal>false</internal>
+        <link/>
+        <name>Accept/Reject-RITM</name>
+        <option_schema>[{"displayValue":"Choice","hint":"","name":"rejectreasons","label":"RejectReasons","type":"string","choices":"","value":"sys_choice","ed":{"reference":"sys_choice"}},{"name":"message","label":"Message","type":"string","choices":[{"label":"No New Pending Actions","value":"No New Pending Actions"}]},{"name":"recordlimit","label":"RecordLimit","type":"integer"},{"name":"heading","label":"Heading","type":"string"}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+ 
+if (input && input.target) {
+  var app = new GlideRecord("sc_req_item");
+  if (app.get(input.target)) {
+    app.state = input.op;
+    if (input.ss) {
+      app.u_sub_status = input.substatus;
+      //gs.addInfoMessage("Test123");
+      //gs.addInfoMessage(input.cmnt);
+
+      //app.u_reopen_reason = input.ss;
+      app.work_notes = input.rejectCommentValue;
+
+    }
+
+    app.update();
+  }
+}
+
+var taskrec = [];
+var gr = new GlideRecord('sc_req_item');
+var qc1 = gr.addQuery("state", "8");
+if (input)
+  qc1.addOrCondition("sys_id", "IN", input.ids);
+//gr.addEncodedQuery("request.u_task_for=cd9106a72ba93100260752b319da15ac^state=8");
+gr.addQuery("request.u_task_for", gs.getUserID());
+gr.orderBy("sys_created_on");
+//gr.setLimit(options.recordlimit);
+gr.query();
+
+var approvals = [];
+
+
+while (gr.next()) {
+
+  var t = {};
+  t.sys_id = gr.getUniqueValue();
+  t.table = gr.getRecordClassName();
+  t.state = gr.getValue("state");
+  t.stateLabel = gr.state.getDisplayValue();
+  t.number = gr.number.getDisplayValue();
+  t.opened_by = gr.opened_by.getDisplayValue();
+  t.short_description = gr.short_description.toString();
+  t.table = gr.getLabel();
+  t.childRec = getChildRecords();
+  approvals.push(t);
+
+}
+
+data.approvals = approvals;
+data.noRecordMsg = gs.getMessage(options.message);
+data.recordLimit = options.recordLimit;
+
+function getChildRecords() {
+  var ctr = new GlideRecord("sc_task");
+  ctr.addQuery("parent", t.sys_id);
+  ctr.orderBy("number");
+  ctr.query();
+
+  while (ctr.next()) {
+    var tt = {};
+    tt.sys_id = ctr.getUniqueValue();
+    tt.table = ctr.getRecordClassName();
+    tt.number = ctr.number.getDisplayValue();
+    tt.short_description = ctr.short_description.toString();
+    tt.close_notes = ctr.close_notes.toString();
+    tt.table = ctr.getLabel();
+    taskrec.push(tt);
+  }
+
+}
+
+data.taskrecords = taskrec;
+
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2017-09-27 20:15:52</sys_created_on>
+        <sys_id>5de60a1c4f610300584f47f18110c79e</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Accept/Reject-RITM</sys_name>
+        <sys_package display_value="Accept/Reject/Survey" source="x_1983_accept_reje">c3060a1c4f610300584f47f18110c735</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Accept/Reject/Survey">c3060a1c4f610300584f47f18110c735</sys_scope>
+        <sys_update_name>sp_widget_5de60a1c4f610300584f47f18110c79e</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2017-09-27 20:16:29</sys_updated_on>
+        <template><![CDATA[<div class="panel panel-default">
+   <div class="panel-heading">
+      <h4 class="panel-title">{{::options.heading}}</h4>
+   </div>
+   <div class="panel-body">
+      <div style="color:lightgreen;" ng-if="data.approvals.length==0">
+         <b>{{data.noRecordMsg}}</b>
+      </div>
+      <div class="sp-approval m-b" ng-repeat="approval in data.approvals" ng-init="notes_toggle=false">
+         <div class="row">
+            <div ng-class="contentColClass">
+               <div ng-if="approval.number || approval.short_description">
+                  <a ng-href="?id=form&table=sc_req_item&sys_id={{::approval.sys_id}}&view=ess" title="Requested Item">
+                  <span class="ss" ng-if="approval.number">{{::approval.number}}</span>
+                  <span class="ss" ng-if="approval.number && approval.short_description">-</span>
+                  <span class="ss" ng-if="approval.short_description">{{::approval.short_description}}</span>
+                  </a>
+               </div>
+              
+               <!---- TASK CODE---->
+              
+               <p ng-click="notes_toggle = !notes_toggle"> Click + to see tasks information
+                  <span class="glyphicon" ng-class="{'glyphicon-plus-sign': !notes_toggle, 'glyphicon-minus-sign': notes_toggle}"></span>
+               </p>
+                <div class="panel-group" ng-if="notes_toggle">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+               <div class = "resnotes">
+                  <b>Task Details</b>
+                  <div ng-repeat="tasks in data.taskrecords">
+                     <label>Task: {{::tasks.number}}</label><br />
+                     <label>Summary: {{::tasks.short_description}}</label><br />
+                     <label>Close Notes:{{::tasks.close_notes}}</label><br />
+                  </div>
+               </div>
+                  </div></div></div></div>
+            <!--End of TASK CODE-->
+            <div class="row">
+               <div class="col-xs-6" ng-if="approval.state == '8'">
+                  <button class="btn btn-primary btn-sm" name="approve" ng-click="approve(approval.sys_id);">${Accept Solution}</button>
+               </div>
+               <div class="col-xs-6" ng-if="approval.state == '8'">
+                  <!--button class="btn btn-danger btn-block" data-target="#rejectModal1" data-toggle="modal" id=
+                     "rejectsubmit" name="rejectsubmit" ng-click="getSysID(approval.sys_id);">${Reject
+                     Solution}</button-->
+                  <button class="btn btn-info btn-sm" ng-click="getSysID(approval.number,approval.sys_id);">${Reject Solution}
+                  </button>
+               </div>
+            </div>
+            <hr />
+         </div>
+         <!---Reject Modal Code--->
+         <script type="text/ng-template" id="rejectModal">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Please select a reason for Rejection</h4>
+                </div>
+                <div class="panel-body">
+                    <center>
+                        <h4>
+            We are so sorry to hear that you were not satisfied with the resolution
+            provided for <b>{{recordnum}}</b>. 
+            Please select the reason for the rejection so we can investigate.
+            </h4></center>
+                </div>
+            
+                <div class="list-group" ng-model="rejectoptions">
+            
+                    <ul>
+                        <li class="list-group-item" ng-click="rejectSubmit(x);" ng-repeat="x in rejectOptions">{{x}}</li>
+                    </ul>
+            
+                    <div class="panel-body" id="sValue" ng-if="getSelectedValue!=''">${You have selected } - {{getSelectedValue}}
+                        <hr/>
+            
+                        <h4><span class="label-default">Reject Comments:</span></h4>
+                        <textarea class="form-control col-xs-*" id="comments" ng-model="$parent.commentValue" placeholder="Please provide detailed comment for your reason"></textarea>
+            
+                    </div>
+            
+                    <!---End of Reject Model--->
+            
+                    <div class="modal-footer" ng-if="getSelectedValue != ''">
+                        <button class="btn btn-danger" data-dismiss="modal" name="reject" ng-click="reject(recordsysid,commentValue);">${Reject}</button>
+                        <button class="btn btn-info" type="button" ng-click="closeModal();"><span class="glyphicon glyphicon-remove"></span>${Cancel}</button>
+            
+                    </div>
+            
+         </script>
+      </div>
+   </div>
+   <div>
+      <!----End of Reject Modal Code-->
+      <div class="panel-footer" ng-if="data.recordLimit <= data.approvals.length">
+         <h4 class="panel-title row">
+            <span>{{data.recordLimit}} of {{data.approval.length}} is shown </span>
+         </h4>
+      </div>
+   </div>
+</div>
+
+
+]]></template>
+    </sp_widget>
+</record_update>
